@@ -2,10 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { PointerEvent } from 'react';
 import { Crosshair, RotateCcw, Target, Trophy, Zap } from 'lucide-react';
 import { GameShell } from './App';
-import {
-  POOL_BOUNDS, POOL_H, POOL_POCKETS, POOL_R, POOL_W, ballGroup,
-  newPoolMatch, placeCueBall, remainingPoolBalls, shootPool, stepPool
-} from './poolEngine';
+import { POOL_BOUNDS, POOL_H, POOL_POCKETS, POOL_R, POOL_W, newPoolMatch, placeCueBall, remainingPoolBalls, shootPool, stepPool } from './poolEngine';
 import type { PoolMatch, PoolPlayer, PoolGroup } from './poolEngine';
 
 type View = {
@@ -56,7 +53,6 @@ function drawBall(ctx: CanvasRenderingContext2D, ball: PoolMatch['balls'][number
 function drawTable(ctx: CanvasRenderingContext2D, game: PoolMatch, angle: number, power: number, placing: boolean) {
   const { left, right, top, bottom } = POOL_BOUNDS;
   ctx.clearRect(0, 0, POOL_W, POOL_H);
-  // Raised wooden cabinet, machined rail and dark green cloth.
   const wood = ctx.createLinearGradient(0, 0, POOL_W, POOL_H);
   wood.addColorStop(0, '#8a5940'); wood.addColorStop(.5, '#422b31'); wood.addColorStop(1, '#a36b43');
   ctx.fillStyle = '#111426'; ctx.fillRect(0, 0, POOL_W, POOL_H);
@@ -109,7 +105,6 @@ function drawTable(ctx: CanvasRenderingContext2D, game: PoolMatch, angle: number
     ctx.lineTo(cue.x + dx * distance, cue.y + dy * distance); ctx.stroke(); ctx.restore();
     ctx.strokeStyle = '#ffffff77'; ctx.lineWidth = 1.4;
     ctx.beginPath(); ctx.arc(cue.x + dx * distance, cue.y + dy * distance, POOL_R, 0, Math.PI * 2); ctx.stroke();
-    // The cue moves behind the ball as power increases but does not obstruct touch.
     const gap = 25 + power * .23;
     const ax = cue.x - dx * gap, ay = cue.y - dy * gap;
     const bx = cue.x - dx * (gap + 143), by = cue.y - dy * (gap + 143);
