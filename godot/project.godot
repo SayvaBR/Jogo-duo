@@ -1,0 +1,21 @@
+; Jogo Duo native game project — Godot 4.7.2 stable, GDScript, Android portrait.
+config_version=5
+
+[application]
+config/name="Jogo Duo"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+
+[display]
+window/size/viewport_width=432
+window/size/viewport_height=936
+window/stretch/mode="canvas_items"
+window/handheld/orientation=1
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.055, 0.063, 0.13, 1)
+
+[input_devices]
+pointing/emulate_mouse_from_touch=true
