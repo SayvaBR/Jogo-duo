@@ -1,7 +1,7 @@
 {
   "name": "jogo-duo",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@capacitor/android": "7.6.9",
+    "@capacitor/app": "7.1.2",
     "@capacitor/core": "7.6.9",
     "lucide-react": "^0.468.0",
     "react": "^19.1.0",

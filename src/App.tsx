@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { App as NativeApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { ArrowLeft, ArrowRight, Brain, Check, CircleDot, Dice5, Gamepad2, Grid3X3, Hand, Heart, LayoutGrid, ShieldCheck, Sparkles, Trophy, Users, Zap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import AirHockey from './AirHockey';
@@ -25,10 +27,29 @@ export function GameShell({title,eyebrow,onBack,children}:{title:string;eyebrow:
 function readStats():Record<string,number>{try{return JSON.parse(localStorage.getItem('jogoduo-finished-v1')||'{}') as Record<string,number>;}catch{return {};}}
 export default function App(){
   const [game,setGame]=useState<GameId|null>(null);
+  const gameRef=useRef<GameId|null>(game);
+  gameRef.current=game;
   const [filter,setFilter]=useState<'all'|'duo'|'group'|'solo'>('all');
   const [stats,setStats]=useState<Record<string,number>>(readStats);
   const complete=(id:GameId)=>setStats(prev=>{const next={...prev,[id]:(prev[id]||0)+1};try{localStorage.setItem('jogoduo-finished-v1',JSON.stringify(next));}catch{/* Storage optional. */}return next;});
-  const back=()=>setGame(null);
+  const back=()=>{gameRef.current=null;setGame(null);};
+  useEffect(()=>{
+    // The Android system gesture/button must navigate within the game instead of closing it.
+    // Keep a single native subscription for the lifetime of the React root.
+    if(!Capacitor.isNativePlatform())return;
+    let disposed=false;
+    let remove:(()=>Promise<void>)|null=null;
+    void NativeApp.addListener('backButton',()=>{
+      if(gameRef.current!==null){gameRef.current=null;setGame(null);}
+      else void NativeApp.minimizeApp();
+    }).then(handle=>{if(disposed)void handle.remove();else remove=()=>handle.remove();});
+    return()=>{disposed=true;if(remove)void remove();};
+  },[]);
+  useEffect(()=>{
+    const keyboardBack=(event:KeyboardEvent)=>{if(event.key==='Escape'&&gameRef.current!==null){event.preventDefault();gameRef.current=null;setGame(null);}};
+    window.addEventListener('keydown',keyboardBack);
+    return()=>window.removeEventListener('keydown',keyboardBack);
+  },[]);
   if(game) return <main className="app playing">
     {game==='air'&&<AirHockey onBack={back} onFinish={()=>complete('air')}/>}
     {game==='ludo'&&<LudoGame onBack={back} onFinish={()=>complete('ludo')}/>}
