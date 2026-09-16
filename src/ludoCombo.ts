@@ -16,7 +16,7 @@ const clearCombo = (state: ComboLudoState): ComboLudoState => ({
   ...state, banked: [], combined: false, extraAfterCombo: false, captureBonus: false
 });
 const nextPlayer = (state: ComboLudoState, message: string): ComboLudoState =>
-  clearCombo({ ...nextLudo(state), message });
+  clearCombo({ ...state, ...nextLudo(state), message });
 
 export function canBankSix(state: ComboLudoState): boolean {
   return state.phase === 'move' && state.die === 6 && !state.combined && state.banked.length === 0 &&
@@ -53,7 +53,10 @@ function finishCombo(state: ComboLudoState, note: string): ComboLudoState {
   return nextPlayer(state, `${note} Próximo jogador.`);
 }
 export function comboMove(state: ComboLudoState, token: number): ComboLudoState {
-  if (!state.combined) return clearCombo(ludoMove(state, token) as ComboLudoState);
+  if (!state.combined) {
+    const result = ludoMove(state, token);
+    return result === state ? state : clearCombo(result as ComboLudoState);
+  }
   if (state.die === null || !ludoOptions(state).includes(token) || state.phase !== 'move') return state;
   const applied = ludoMove(state, token);
   if (applied === state) return state;
