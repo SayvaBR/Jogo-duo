@@ -24,7 +24,9 @@ jobs:
           cache: true
       - name: Generate Android host (Flutter, no WebView or Capacitor)
         working-directory: flutter_app
-        run: flutter create --platforms=android --project-name=jogo_duo --org=br.sayva .
+        run: |
+          flutter create --platforms=android --project-name=jogo_duo --org=br.sayva .
+          rm -f test/widget_test.dart
       - name: Install packages
         working-directory: flutter_app
         run: flutter pub get
