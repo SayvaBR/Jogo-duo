@@ -26,25 +26,22 @@ export function LudoGame({onBack,onFinish}:{onBack:()=>void;onFinish:()=>void}){
   const [game,setGame]=useState<ComboLudoState>(()=>newComboLudo(2));
   const [visual,setVisual]=useState<number[][]>(()=>newComboLudo(2).tokens);
   const [comboEnabled,setComboEnabled]=useState(true);
-  const [rolling,setRolling]=useState(false);
-  const [throwFace,setThrowFace]=useState(5);
-  const [throwId,setThrowId]=useState(0);
   const [animating,setAnimating]=useState(false);
   const [movingToken,setMovingToken]=useState<number|null>(null);
   const [effect,setEffect]=useState<'capture'|'six'|'home'|'win'|null>(null);
   const timer=useRef<ReturnType<typeof setTimeout>|null>(null);
   useEffect(()=>()=>{if(timer.current!==null)clearTimeout(timer.current);},[]);
   const stopTimer=()=>{if(timer.current!==null)clearTimeout(timer.current);timer.current=null;};
-  const restart=(n:2|3|4=count)=>{stopTimer();const fresh=newComboLudo(n);setCount(n);setGame(fresh);setVisual(fresh.tokens);setRolling(false);setAnimating(false);setMovingToken(null);setEffect(null);};
+  const restart=(n:2|3|4=count)=>{stopTimer();const fresh=newComboLudo(n);setCount(n);setGame(fresh);setVisual(fresh.tokens);setAnimating(false);setMovingToken(null);setEffect(null);};
   const roll=()=>{
-    if(rolling||animating||game.phase!=='roll')return;
+    if(animating||game.phase!=='roll')return;
     const value=1+Math.floor(Math.random()*6);
-    setThrowFace(value);setThrowId(id=>id+1);setRolling(true);setEffect(null);
-    timer.current=setTimeout(()=>{setGame(old=>comboRoll(old,value));setRolling(false);timer.current=null;},950);
+    setEffect(null);
+    setGame(old=>comboRoll(old,value));
   };
   const options=ludoOptions(game);
   const move=(token:number)=>{
-    if(rolling||animating||!options.includes(token))return;
+    if(animating||!options.includes(token))return;
     const next=comboMove(game,token);if(next===game)return;
     const player=game.current,start=game.tokens[player][token],end=next.tokens[player][token];
     const captured=next.tokens.some((row,p)=>p!==player&&row.some((value,i)=>value===-1&&game.tokens[p][i]!==-1));
@@ -64,7 +61,7 @@ export function LudoGame({onBack,onFinish}:{onBack:()=>void;onFinish:()=>void}){
     };
     timer.current=setTimeout(tick,110);
   };
-  const busy=rolling||animating;
+  const busy=animating;
   const pieces=game.players.flatMap(player=>visual[player].map((progress,index)=>{const [x,y]=ludoPosition(player,progress,index);return {player,progress,index,x,y,key:xy(x,y)};}));
   const groups=new Map<string,typeof pieces>();for(const piece of pieces)groups.set(piece.key,[...(groups.get(piece.key)||[]),piece]);
   const showCombo=game.phase==='move'&&game.combined&&game.die!==null&&game.banked.length===1;
@@ -79,14 +76,13 @@ export function LudoGame({onBack,onFinish}:{onBack:()=>void;onFinish:()=>void}){
       {!busy&&game.phase==='move'&&game.die!==null&&options.map(index=>{const current=game.tokens[game.current][index],target=current===-1?0:current+game.die!;const [x,y]=ludoPosition(game.current,target,index);return <span key={index} className="ludo-target" style={{left:`${(x+.5)/15*100}%`,top:`${(y+.5)/15*100}%`,borderColor:COLORS[game.current]}} aria-hidden="true"/>;})}
       {pieces.map(piece=>{const stack=groups.get(piece.key)||[],slot=stack.findIndex(item=>item.player===piece.player&&item.index===piece.index);const center=piece.progress===56;const spread=center?.53:.31;const dx=stack.length===1?0:((slot%(center?4:2))-(center?1.5:.5))*spread;const dy=stack.length===1?0:(Math.floor(slot/(center?4:2))-(center?1.5:stack.length>2?.5:0))*spread;
         const available=!busy&&piece.player===game.current&&options.includes(piece.index);return <button key={`${piece.player}-${piece.index}`} className={'ludo-token ludo-token-premium '+(available?'available ':'')+(animating&&piece.player===game.current&&movingToken===piece.index?'in-motion':'')} style={{left:`${(piece.x+.5+dx)/15*100}%`,top:`${(piece.y+.5+dy)/15*100}%`,backgroundColor:COLORS[piece.player]}} aria-label={`${NAMES[piece.player]}, peça ${piece.index+1}, ${piece.progress===-1?'na base':piece.progress===56?'no centro':`casa ${piece.progress+1}`}${available?', toque para mover':''}`} disabled={!available} onClick={()=>move(piece.index)}><span className="ludo-token-shine"/><span className="ludo-token-number">{piece.index+1}</span></button>;})}
-      {rolling&&<div key={throwId} className="ludo-throw" aria-hidden="true"><DieFace value={throwFace}/><span className="ludo-throw-shadow"/></div>}
       {effect==='capture'&&<div className="ludo-board-flash" aria-hidden="true">CAPTURA!</div>}
       {game.winner!==null&&<div className="ludo-win-overlay" aria-hidden="true">{Array.from({length:20},(_,i)=><span key={i} style={{left:`${(i*37)%97}%`,animationDelay:`${(i%7)*-.17}s`,backgroundColor:COLORS[i%4]}}/>)}</div>}
     </div>
     {showCombo&&<div className="ludo-dice-tray" role="group" aria-label="Escolha qual valor de dado usar primeiro"><strong>SEUS DADOS · escolha a ordem</strong><div><button className="chosen" aria-pressed="true" disabled={busy} onClick={()=>{}}><DieFace value={game.die!}/>Usar {game.die}</button><button aria-pressed="false" disabled={busy} onClick={()=>setGame(old=>chooseComboDie(old))}><DieFace value={game.banked[0]}/>Usar {game.banked[0]}</button></div></div>}
     {game.phase==='move'&&!busy&&options.length>0&&<div className="ludo-piece-picker"><strong>QUAL PEÇA VAI ANDAR {game.die} {game.die===1?'CASA':'CASAS'}?</strong><div>{options.map(index=><button key={index} onClick={()=>move(index)} style={{borderColor:COLORS[game.current]}} aria-label={`Mover peça ${index+1} com dado ${game.die}`}>PEÇA <b>{index+1}</b></button>)}</div></div>}
     {comboEnabled&&!busy&&canBankSix(game)&&<button className="ludo-bank-button" onClick={()=>{setGame(old=>bankSix(old));setEffect('six');}}><Dice6 size={21}/> Guardar o 6 e lançar novamente <span>6 + ? →</span></button>}
-    <div className="ludo-panel ludo-panel-premium"><button className={'die-button ludo-roll '+(rolling?'rolling':'')} disabled={busy||game.phase!=='roll'} onClick={roll} aria-label={game.banked.length?'Lançar segundo dado':'Lançar dado'}><DieFace value={rolling?throwFace:game.die||5}/><small>{rolling?'ROLANDO...':game.phase==='roll'?game.banked.length?'LANÇAR 2º DADO':'LANÇAR DADO':game.die?`SAIU ${game.die}`:'AGUARDE'}</small></button><div className="ludo-instructions" aria-live="polite"><span className="ludo-status-eyebrow">{animating?'PEÇA EM MOVIMENTO':effect==='capture'?'CAPTURA!':effect==='six'?'SEIS!':effect==='home'?'CHEGOU!':effect==='win'?'VITÓRIA!':game.combined?'DADOS COMBINADOS':'SUA JOGADA'}</span><strong>{rolling?'O dado está saltando sobre o tabuleiro...':animating?'Acompanhe o peão, casa por casa.':game.message}</strong><p>{game.winner!==null?'Que tal uma revanche?':showCombo?'Selecione 6 ou o outro valor; depois toque na peça escolhida.':game.phase==='move'?'Peças pulsando podem jogar. O círculo marca o destino.':'Tire 6 para sair da base. Capture fora das casas seguras.'}</p></div></div>
+    <div className="ludo-panel ludo-panel-premium"><button className="die-button ludo-roll" disabled={busy||game.phase!=='roll'} onClick={roll} aria-label={game.banked.length?'Lançar segundo dado':'Lançar dado'}><DieFace value={game.die||5}/><small>{game.phase==='roll'?game.banked.length?'LANÇAR 2º DADO':'LANÇAR DADO':game.die?`SAIU ${game.die}`:'AGUARDE'}</small></button><div className="ludo-instructions" aria-live="polite"><span className="ludo-status-eyebrow">{animating?'PEÇA EM MOVIMENTO':effect==='capture'?'CAPTURA!':effect==='six'?'SEIS!':effect==='home'?'CHEGOU!':effect==='win'?'VITÓRIA!':game.combined?'DADOS COMBINADOS':'SUA JOGADA'}</span><strong>{animating?'Acompanhe o peão, casa por casa.':game.message}</strong><p>{game.winner!==null?'Que tal uma revanche?':showCombo?'Selecione 6 ou o outro valor; depois toque na peça escolhida.':game.phase==='move'?'Peças pulsando podem jogar. O círculo marca o destino.':'Tire 6 para sair da base. Capture fora das casas seguras.'}</p></div></div>
     <div className="ludo-rule-pills"><span><ShieldCheck size={15}/> ★ Casa segura</span><span><Sparkles size={15}/> 6 dá nova jogada</span><span><Trophy size={15}/> 4 peças para vencer</span></div>
     <button className="secondary-btn full" disabled={busy} onClick={()=>restart()}><RotateCcw size={18}/>{game.winner!==null?'Jogar revanche':'Reiniciar partida'}</button>
     <p className="hint">Modo da casa opcional: com pelo menos 2 peças em jogo, guarde um 6 e lance outra vez; cada dado move uma peça à sua escolha. Três seis seguidos encerram a vez.</p>
