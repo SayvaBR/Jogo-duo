@@ -1,8 +1,5 @@
-name: Test and build Android debug APK
+name: Legacy Capacitor APK (manual rollback only)
 on:
-  push:
-    branches: [main]
-  pull_request:
   workflow_dispatch:
 jobs:
   android:
@@ -21,19 +18,14 @@ jobs:
       - uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
-      - name: Run game logic tests
-        run: npm test
-      - name: Build web assets
-        run: npm run build
-      - name: Generate native Android project
-        run: npx cap add android
-      - name: Compile Android APK
-        run: cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+      - run: npm install --no-audit --no-fund
+      - run: npm test
+      - run: npm run build
+      - run: npx cap add android
+      - run: cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
-          name: jogo-duo-debug-apk
+          name: legacy-capacitor-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
