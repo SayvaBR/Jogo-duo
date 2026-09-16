@@ -1,18 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { App as NativeApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
-import { ArrowLeft, ArrowRight, Brain, Check, CircleDot, Dice5, Gamepad2, Grid3X3, Hand, Heart, LayoutGrid, ShieldCheck, Sparkles, Trophy, Users, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Brain, Check, CircleDot, Dice5, Gamepad2, Grid3X3, Hand, Heart, LayoutGrid, ShieldCheck, Sparkles, Target, Trophy, Users, Zap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import AirHockey from './AirHockey';
 import { TicTacToe, ConnectFour } from './BoardGames';
 import { MemoryGame, DotsGame, RpsGame } from './PartyGames';
 import { LudoGame } from './Ludo';
 import { SudokuGame } from './Sudoku';
+import Pool from './Pool';
 
-export type GameId = 'air'|'ludo'|'tic'|'four'|'dots'|'memory'|'rps'|'sudoku';
+export type GameId = 'air'|'pool'|'ludo'|'tic'|'four'|'dots'|'memory'|'rps'|'sudoku';
 interface GameInfo { id:GameId; title:string; sub:string; players:string; category:'duo'|'group'|'solo'; icon:LucideIcon; color:string; tag:string; }
 const games:GameInfo[]=[
   {id:'air',title:'Air Rocket',sub:'Disco, reflexos e gols',players:'2 jogadores',category:'duo',icon:Zap,color:'pink',tag:'TEMPO REAL'},
+  {id:'pool',title:'Sinuca',sub:'Mire, encaçape e vença na bola 8',players:'2 jogadores',category:'duo',icon:Target,color:'mint',tag:'NOVIDADE · BOLA 8'},
   {id:'ludo',title:'Ludo',sub:'Corra até o centro',players:'2 a 4 jogadores',category:'group',icon:Dice5,color:'purple',tag:'TABULEIRO'},
   {id:'tic',title:'Jogo da velha',sub:'Três em linha vencem',players:'2 jogadores',category:'duo',icon:Grid3X3,color:'cyan',tag:'CLÁSSICO'},
   {id:'four',title:'Ligue 4',sub:'Quatro peças na sequência',players:'2 jogadores',category:'duo',icon:CircleDot,color:'yellow',tag:'ESTRATÉGIA'},
@@ -34,8 +36,7 @@ export default function App(){
   const complete=(id:GameId)=>setStats(prev=>{const next={...prev,[id]:(prev[id]||0)+1};try{localStorage.setItem('jogoduo-finished-v1',JSON.stringify(next));}catch{/* Storage optional. */}return next;});
   const back=()=>{gameRef.current=null;setGame(null);};
   useEffect(()=>{
-    // The Android system gesture/button must navigate within the game instead of closing it.
-    // Keep a single native subscription for the lifetime of the React root.
+    // Android Back returns to the catalog instead of closing an active game.
     if(!Capacitor.isNativePlatform())return;
     let disposed=false;
     let remove:(()=>Promise<void>)|null=null;
@@ -52,6 +53,7 @@ export default function App(){
   },[]);
   if(game) return <main className="app playing">
     {game==='air'&&<AirHockey onBack={back} onFinish={()=>complete('air')}/>}
+    {game==='pool'&&<Pool onBack={back} onFinish={()=>complete('pool')}/>}
     {game==='ludo'&&<LudoGame onBack={back} onFinish={()=>complete('ludo')}/>}
     {game==='tic'&&<TicTacToe onBack={back} onFinish={()=>complete('tic')}/>}
     {game==='four'&&<ConnectFour onBack={back} onFinish={()=>complete('four')}/>}
@@ -65,7 +67,7 @@ export default function App(){
   return <main className="app"><div className="ambient ambient-a"/><div className="ambient ambient-b"/>
     <header className="home-header"><div className="brand-mark"><Gamepad2 size={28} strokeWidth={2.8}/></div><div className="brand-wordmark">JOGO <b>DUO</b><small>SEU FLIPERAMA DE BOLSO</small></div><div className="online-pill"><span className="live-dot"/> OFFLINE</div></header>
     <section className="hero"><div className="hero-eyebrow"><Sparkles size={15}/> A DIVERSÃO COMEÇA AQUI</div><h1>Juntos, a partida fica <em>melhor.</em></h1><p>Um celular. Seus amigos. Um monte de desafios para disputar lado a lado.</p><button className="hero-button" onClick={()=>setGame('air')}><Zap size={20} fill="currentColor"/> Jogar agora <ArrowRight size={19}/></button><div className="hero-sparks" aria-hidden="true">✦<span>✳</span>✦</div></section>
-    <div className="stats-row"><div><span className="stat-icon purple-text"><Gamepad2 size={19}/></span><strong>08</strong><small>MINIJOGOS</small></div><div><span className="stat-icon cyan-text"><Users size={19}/></span><strong>2–4</strong><small>AMIGOS</small></div><div><span className="stat-icon yellow-text"><Trophy size={19}/></span><strong>{total}</strong><small>CONCLUÍDOS</small></div></div>
+    <div className="stats-row"><div><span className="stat-icon purple-text"><Gamepad2 size={19}/></span><strong>09</strong><small>MINIJOGOS</small></div><div><span className="stat-icon cyan-text"><Users size={19}/></span><strong>2–4</strong><small>AMIGOS</small></div><div><span className="stat-icon yellow-text"><Trophy size={19}/></span><strong>{total}</strong><small>CONCLUÍDOS</small></div></div>
     <section className="catalog"><div className="catalog-heading"><div><span className="eyebrow purple-text">ESCOLHA SEU DESAFIO</span><h2>Todos os jogos <span>✦</span></h2></div><span className="count-pill">{shown.length} JOGOS</span></div>
       <div className="filters" role="group" aria-label="Filtrar jogos">{([['all','Todos'],['duo','2 jogadores'],['group','Até 4'],['solo','Solo']] as const).map(([key,name])=><button className={filter===key?'filter active':'filter'} aria-pressed={filter===key} key={key} onClick={()=>setFilter(key)}>{name}</button>)}</div>
       <div className="games-grid">{shown.map(item=><button key={item.id} className={'game-card '+item.color} onClick={()=>setGame(item.id)}><div className="game-card-top"><span className="game-icon"><item.icon size={31} strokeWidth={2.35}/></span><span className="game-arrow"><ArrowRight size={18}/></span></div><span className="game-tag">{item.tag}</span><h3>{item.title}</h3><p>{item.sub}</p><div className="game-card-footer"><Users size={14}/>{item.players}</div></button>)}</div>
