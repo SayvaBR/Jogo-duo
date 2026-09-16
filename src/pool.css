@@ -1,0 +1,25 @@
+/* Sinuca: tactile controls, readable on narrow phones, no remote assets. */
+.pool-page{max-width:540px}.pool-page .game-header{margin-bottom:15px}
+.pool-score{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 12px}
+.pool-player{display:flex;flex-direction:column;gap:4px;min-width:0;border:1px solid #39455b;border-bottom:4px solid #29364b;border-radius:17px;background:#1b2638;padding:12px;transition:border-color .18s,background .18s}
+.pool-player.active.player-0{border-color:#74e7fa;background:#173746}.pool-player.active.player-1{border-color:#ff9bbd;background:#3c283d}
+.pool-player-heading{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:1000;letter-spacing:.5px;color:#d3dcf0}
+.pool-player-dot{width:11px;height:11px;border:2px solid #ffffff77;border-radius:50%;background:#72e6f8;flex-shrink:0}.pool-player-1 .pool-player-dot{background:#ff85b3}
+.pool-player strong{font-size:clamp(16px,4vw,20px);color:#fff;letter-spacing:-.4px}.pool-player small{font-size:9px;font-weight:1000;letter-spacing:.5px;color:#abb9cd}
+.pool-status{display:flex;align-items:center;gap:12px;margin-bottom:12px;border:1px solid #3a6757;border-bottom:4px solid #244c40;border-radius:17px;background:#1a332e;padding:12px}
+.pool-status>span{width:35px;height:35px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;background:#2b5a4d;color:#a8f8d1}.pool-status>div{min-width:0;flex:1}
+.pool-status strong{display:block;font-size:11px;letter-spacing:1px;font-weight:1000;color:#b4f5d5}.pool-status p{margin:4px 0 0;color:#d7e9e2;line-height:1.4;font-size:11px;font-weight:700}
+.pool-controls{position:relative;z-index:2;border:1px solid #3b455d;border-bottom:4px solid #282f47;border-radius:18px;background:#202842;padding:11px;margin:0 0 10px}
+.pool-aim-row{display:flex;align-items:center;gap:12px}.pool-power{flex:1;min-width:0}.pool-power label{display:flex;justify-content:space-between;gap:5px;color:#c9d7e9;font-weight:1000;font-size:10px;letter-spacing:1px;margin-bottom:9px}.pool-power label b{color:#89f7db;font-size:12px;font-variant-numeric:tabular-nums}
+.pool-power input{display:block;width:100%;height:27px;margin:0;accent-color:#67e7c0;touch-action:pan-x;cursor:pointer}.pool-power input:disabled{opacity:.45}
+.pool-shoot{display:flex;align-items:center;justify-content:center;gap:7px;flex:0 0 123px;min-height:53px;border:1px solid #b4ffdf;border-bottom:5px solid #299c77;border-radius:14px;background:#67e7b6;color:#123629;font-size:13px;font-weight:1000;letter-spacing:.7px;transition:transform .12s,filter .12s}.pool-shoot:not(:disabled):active{transform:translateY(4px);filter:brightness(1.1)}.pool-shoot:disabled{opacity:.45}
+.pool-ball-hand{display:flex;align-items:center;gap:10px;justify-content:space-between;background:#2d3e42;border:1px solid #527969;border-radius:11px;padding:9px;margin-bottom:10px}.pool-ball-hand span{flex:1;color:#def9e9;font-size:10px;line-height:1.4;font-weight:700}.pool-ball-hand button{flex-shrink:0;max-width:135px;min-height:43px;padding:7px 9px;border:1px solid #ddf9cd;border-bottom:4px solid #588976;border-radius:10px;background:#9cf0c7;color:#163d30;font-size:9px;font-weight:1000}
+.pool-table-wrap{display:flex;justify-content:center;align-items:center;padding:9px 7px;border:1px solid #354b46;border-radius:25px;background:radial-gradient(ellipse at center,#244a43 0,#121f2c 72%);box-shadow:0 12px 24px #03091844}
+.pool-table-wrap canvas{display:block;width:min(100%,420px,40dvh);height:auto;aspect-ratio:7/12;touch-action:none;user-select:none;-webkit-user-select:none;border-radius:19px}
+.pool-precision{display:flex;justify-content:space-between;align-items:center;gap:9px;border:1px solid #364259;border-radius:14px;padding:9px 12px;margin-top:10px;background:#20273c}
+.pool-precision>span{display:flex;align-items:center;gap:6px;color:#abb8d2;font-size:10px;letter-spacing:.6px;font-weight:1000}.pool-precision>span svg{color:#89f7db}
+.pool-precision>div{display:flex;align-items:center;gap:7px}.pool-precision button{min-width:46px;min-height:40px;padding:7px;border:1px solid #4b5a71;border-bottom:3px solid #3d475a;border-radius:10px;background:#2e3c52;color:#f9fbff;font-size:11px;font-weight:1000}.pool-precision button:disabled{opacity:.4}.pool-precision strong{font-variant-numeric:tabular-nums;min-width:33px;text-align:center;font-size:10px;color:#bdd4e4}
+.pool-rules{margin:15px 0 0;padding:15px;border:1px solid #36415b;border-radius:17px;background:#1b2137}.pool-rules strong{color:#a4f5d4;font-size:10px;font-weight:1000;letter-spacing:1px}.pool-rules p{color:#bac5db;font-size:11px;line-height:1.6;margin:7px 0 0}.pool-rules b{color:#effff6}
+@media(max-width:370px){.pool-player{padding:9px}.pool-status{padding:10px}.pool-precision{padding:7px;gap:5px}.pool-precision>span{font-size:9px}.pool-precision>div{gap:4px}.pool-shoot{flex-basis:108px;font-size:11px}.pool-ball-hand{gap:6px}.pool-ball-hand button{max-width:115px}}
+@media(max-height:670px) and (orientation:portrait){.pool-table-wrap canvas{width:min(100%,420px,36dvh)}}
+@media(prefers-reduced-motion:reduce){.pool-player,.pool-shoot{transition:none}}
