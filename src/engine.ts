@@ -66,8 +66,9 @@ export function newLudo(count: 2|3|4): LudoState {
   return {players,tokens:Array.from({length:4},()=>[-1,-1,-1,-1]),current:players[0],die:null,sixes:0,phase:'roll',winner:null,message:'Toque no dado para começar.'};
 }
 export function ludoOptions(state:LudoState): number[] {
-  if(state.phase!=='move' || state.die===null) return [];
-  return state.tokens[state.current].flatMap((pos,i) => pos===56 || pos===-1 && state.die!==6 || pos>=0 && pos+state.die>56 ? [] : [i]);
+  const die=state.die;
+  if(state.phase!=='move' || die===null) return [];
+  return state.tokens[state.current].flatMap((pos,i) => pos===56 || pos===-1 && die!==6 || pos>=0 && pos+die>56 ? [] : [i]);
 }
 export function nextLudo(state:LudoState): LudoState {
   const idx=state.players.indexOf(state.current);
