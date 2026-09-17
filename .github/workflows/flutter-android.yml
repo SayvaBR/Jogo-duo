@@ -27,6 +27,9 @@ jobs:
           flutter create --platforms=android --org com.sayvabr --project-name jogo_duo --no-pub .
           sed -i 's/android:label="jogo_duo"/android:label="Jogo Duo"/' android/app/src/main/AndroidManifest.xml
           rm -f test/widget_test.dart
+      - name: Normalize initial Dart port
+        working-directory: flutter_app
+        run: python3 tool/normalize_sources.py
       - name: Resolve dependencies
         working-directory: flutter_app
         run: flutter pub get
