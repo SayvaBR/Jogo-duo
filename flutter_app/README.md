@@ -1,22 +1,26 @@
-# Jogo Duo — Android nativo com Flutter + Flame
+# Jogo Duo — Android com Flutter + Flame
 
-Esta é a implementação do Jogo Duo para Android feita com Flutter (telas, controles e tabuleiros) + Flame (game loop dos jogos com física Air Rocket e Sinuca). Não carrega HTML nem utiliza React, Capacitor ou WebView.
+Esta é a nova implementação do Jogo Duo para Android. Flutter implementa a interface e os tabuleiros; Flame executa o ciclo de atualização dos jogos com física Air Rocket e Sinuca. Não usa WebView, React ou Capacitor nesta versão.
 
-## Jogável
+## Jogos
 
-Nove jogos no mesmo celular, completamente offline: Air Rocket, Sinuca bola 8, Ludo de 2 a 4 pessoas com opção de dados combinados, Jogo da Velha, Ligue 4, Pontos e Caixas ampliado para 4×4 caixas com linha candidata e última jogada destacadas, Memória Dupla, Pedra/Papel/Tesoura com escolhas secretas e Sudoku com notas e três dicas.
+Nove jogos locais/offline: Air Rocket, Sinuca bola 8, Ludo (2–4 jogadores, dados combinados opcionais), Jogo da Velha, Ligue 4, Pontos e Caixas (16 caixas, tabuleiro maior, prévia da linha, último lance destacado), Memória Dupla, Pedra/Papel/Tesoura com escolhas secretas e Sudoku com notas e dicas.
 
-## Desenvolvimento
+## Gerar o APK Android
 
-Requer Flutter estável e Android SDK. Na pasta `flutter_app`:
+Requisitos: Flutter estável, Android SDK e JDK. Entre na pasta `flutter_app`:
 
 ```bash
-flutter create --platforms=android --org com.sayvabr --project-name jogo_duo .
+flutter create --platforms=android --org com.sayvabr --project-name jogo_duo --no-pub .
+python3 tool/normalize_sources.py
 flutter pub get
 flutter test test/game_logic_test.dart
+flutter analyze --no-fatal-infos --no-fatal-warnings
 flutter build apk --debug
 ```
 
-O APK fica em `build/app/outputs/flutter-apk/app-debug.apk`. O workflow `Flutter Android - Jogo Duo` repete esses passos e publica o artefato `jogo-duo-flutter-debug-apk` a cada alteração Flutter na branch main. O aplicativo React anterior continua isolado na raiz até a substituição ser validada no aparelho. O package ID Flutter `com.sayvabr.jogo_duo` é diferente do legado, permitindo testes lado a lado.
+**Importante:** `tool/normalize_sources.py` é uma normalização temporária e idempotente da primeira migração dos arquivos Dart. Execute-a uma vez em um checkout novo antes de compilar; o workflow executa a mesma etapa automaticamente. O próximo trabalho de manutenção é incorporar essas correções diretamente nos arquivos Dart e eliminar esse bootstrap.
 
-**Limites:** física de colisão feita em Dart dentro do game loop Flame, sem Forge2D por enquanto; a seleção automática de dificuldade e efeitos sonoros não foram migrados. Não declarar pronto para loja antes de testes no hardware, revisão de acessibilidade, assinatura de release e verificação das regras das partidas completas.
+APK: `build/app/outputs/flutter-apk/app-debug.apk`. A execução `Flutter Android - Jogo Duo` publica o artefato `jogo-duo-flutter-debug-apk`; o build e os testes foram validados no GitHub Actions. O antigo aplicativo React permanece na raiz e não é usado por este APK. A identificação Android Flutter é `com.sayvabr.jogo_duo`, separada da versão anterior para instalar as duas lado a lado.
+
+**Escopo atual:** física de colisão escrita em Dart no loop Flame (sem Forge2D), APK de depuração para teste. Não é versão de publicação na Play Store: ainda precisa ser avaliada em dispositivo físico, ter os fluxos completos das partidas verificados e receber assinatura de lançamento, testes de acessibilidade e acabamento visual.
